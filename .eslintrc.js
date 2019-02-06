@@ -12,7 +12,7 @@ module.exports = {
   //   "sourceType": "module",
   // },
   "extends": [
-    "airbnb",
+    // "airbnb",
     // "plugin:react/recommended",
     // "plugin:jsx-a11y/recommended",
     "react-app",
