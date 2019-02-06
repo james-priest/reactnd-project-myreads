@@ -8,7 +8,6 @@ This site contains code notes for project 1 of my Udacity React Nanodegree proje
 
 ---
 
-<!-- 
 ## 1. Setup
 ### 1.1 Create React App
 The first thing I did was start with a fresh [Create React App](https://facebook.github.io/create-react-app/) instance.
@@ -17,4 +16,63 @@ The first thing I did was start with a fresh [Create React App](https://facebook
 npx create-react-app reactnd-project-myreads
 cd reactnd-project-myreads
 npm start
-``` -->
+```
+
+The last command tests that the app installed properly.
+
+### 1.2 Add Starter Files
+This step consisted of copying the starter site files to the repo.
+
+This includes:
+
+- /INSTRUCTIONS.md
+- /SEARCH_TERMS.md
+  - /src/App.css
+  - /src/App.js
+  - /src/BooksAPI.js
+  - /src/index.css
+  - /src/index.js
+
+### 1.3 Setup Jekyll
+The Jekyll static site generator allows me to document the steps I take to build this project.
+
+Jekyll is what GitHub uses to generate GitHub Pages. Creating a local copy allows previews  of these docs locally before pushing to GitHub.
+
+## 2. Analysis
+### 2.1 What it Does
+The My Reads App allows you to track books and place them on one of three bookshelves.
+
+[![ui1](assets/images/p1-small.jpg)](assets/images/p1.jpg)
+
+Each shelf corresponds to one of the following
+
+- Currently Reading
+- Want to Read
+- Have Read
+
+The app also lets you search for books and add them to one of the three category shelves.
+
+Lastly the app allows you to move books between shelves.
+
+### 2.2 Split UI into Hierarchy
+The first step was to look at the UI and determine each of the logical areas.
+
+I then drew boxes around each of these areas and broke it down according to function.
+
+[![ui2](assets/images/p2-small.jpg)](assets/images/p2.jpg)
+
+This became my hierarchy of components. The components are split between two pages - a List page and a Search page.
+
+Here's the nested representation.
+
+- App (yellow)
+  - List Books page
+    - Bookshelf (green)
+      - Book (blue)
+        - Bookshelf Changer (red)
+    - Add Book (purple)
+  - Search Books page
+    - Search Bar
+    - Results
+
+[![ui3](assets/images/p3-small.jpg)](assets/images/p3.jpg)
