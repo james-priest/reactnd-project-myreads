@@ -54,7 +54,22 @@ The app also lets you search for books and add them to one of the three category
 
 Lastly the app allows you to move books between shelves.
 
-### 2.2 Split UI into Hierarchy
+### 2.2 Code Process
+#### Roadmap
+Below a link to the roadmap I follow for taking a mock-up or static site and building a full fledged React application from it.
+
+- [12. Thinking in React](https://reactjs.org/docs/thinking-in-react.html)
+
+That page is part of the [Twelve Main Concepts of React](https://reactjs.org/docs/hello-world.html)  outlined by [Dan Abramov](https://twitter.com/dan_abramov), one of the dev evangelists of the UI library.
+
+#### Approach
+Additionally, I've found the easiest way to work on small projects is to keep all the components on one page to start. This way I don't have to worry about the plumbing of connecting multiple pages.
+
+I also tend to work from the top down which is what is recommended for smaller projects.
+
+Once I get to the lowest component in a hierachy I then start to split the components into their own files.
+
+### 2.3 Split UI into Hierarchy
 The first step was to look at the UI and determine each of the logical areas.
 
 I then drew boxes around each of these areas and broke it down according to function.
@@ -76,3 +91,14 @@ Here's the nested representation.
     - Results
 
 [![ui3](assets/images/p3-small.jpg)](assets/images/p3.jpg)
+
+<!-- 
+## 3. Routing
+### 3.1 Add React Router
+I imported the React Router package.
+
+```bash
+npm install --save react-router-dom
+```
+
+### 3.2 Import package -->
