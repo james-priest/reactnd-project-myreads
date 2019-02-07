@@ -3,7 +3,7 @@
 
 <!-- [![udacity-react](assets/images/udacity-react-small.jpg)](assets/images/udacity-react.jpg) -->
 
-This site contains code notes for project 1 of my Udacity React Nanodegree project. For more info on the program click the link below:
+This site contains code notes for project 1 of my Udacity React Nanodegree project. Click the link below for more information on the course.
 - [Udacity's React Nanodegree Program](https://www.udacity.com/course/react-nanodegree--nd019)
 
 ---
@@ -21,7 +21,7 @@ npm start
 The last command tests that the app installed properly.
 
 ### 1.2 Add Starter Files
-This step consisted of copying the starter site files to the repo.
+This step consisted of copying the [starter site files to the repo](https://github.com/udacity/reactnd-project-myreads-starter).
 
 This includes:
 
@@ -67,7 +67,7 @@ Additionally, I've found the easiest way to work on small projects is to keep al
 
 I also tend to work from the top down which is what is recommended for smaller projects.
 
-Once I get to the lowest component in a hierachy I then start to split the components into their own files.
+Once I get to the lowest component in a hierarchy I then start to split the components into their own files.
 
 ### 2.3 Split UI into Hierarchy
 The first step was to look at the UI and determine each of the logical areas.
@@ -92,13 +92,102 @@ Here's the nested representation.
 
 [![ui3](assets/images/p3-small.jpg)](assets/images/p3.jpg)
 
-<!-- 
 ## 3. Routing
-### 3.1 Add React Router
-I imported the React Router package.
+### 3.1 Install React Router
+I installed the React Router package.
 
 ```bash
 npm install --save react-router-dom
 ```
 
-### 3.2 Import package -->
+### 3.2 Add BrowserRouter
+Next I imported the BrowserRouter component into index.js and wrapped `<App />` with it.
+
+```jsx
+// index.js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App';
+import './index.css';
+
+ReactDOM.render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>,
+  document.getElementById('root')
+);
+```
+
+### 3.3 Add Route & Link
+Next I imported Route and Link components into App.js.
+
+```jsx
+// App.js
+import React, { Component } from 'react';
+import { Route, Link } from 'react-router-dom';
+```
+
+### 3.4 Convert State to Route
+This is the part where we move away from using state to determine which component to display and instead use React Router.
+
+The old code used something like this.
+
+```jsx
+// App.js
+class BooksApp extends Component {
+  state = {
+    showSearchPage: false,
+  };
+  render() {
+    return (
+      <div className="app">
+        {this.state.showSearchPage ? (
+          // <div className="search-books">
+            // button onClick={() => this.setState({ showSearchPage: false })
+        ) : (
+          // <div className="list-books">
+            // button onClick={() => this.setState({ showSearchPage: true })}
+        )}
+      </div>
+    )
+  }
+}
+```
+
+The updated code now uses Route and Link. I also split out the code into it's own List and Search components.
+
+```jsx
+// App.js
+class BooksApp extends Component {
+  state = {};
+  render() {
+    return (
+      <div className="app">
+        <Route exact path="/" component={List} />
+        <Route path="/search" component={Search} />
+      </div>
+    )
+  }
+}
+
+class List extends Component {
+  render() {
+    return (
+      <div className="list-books">
+        {/* UI code */}
+      </div>
+    )
+  }
+}
+
+class Search extends Component {
+  render() {
+    return (
+      <div className="search-books">
+        {/* UI code */}
+      </div>
+    )
+  }
+}
+```
