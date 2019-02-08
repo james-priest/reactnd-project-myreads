@@ -390,3 +390,5 @@ So far we have this hierarchy.
     - SearchResults
       - Book
         - BookshelfChanger
+
+The next step will be to bring the data in and start to pass that down as props.
