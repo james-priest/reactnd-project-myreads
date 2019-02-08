@@ -85,10 +85,13 @@ Here's the nested representation.
     - Bookshelf (green)
       - Book (blue)
         - Bookshelf Changer (red)
-    - Add Book (purple)
+    - Add Book Button (purple)
   - Search Books page
-    - Search Bar
-    - Results
+    - Close Search Button (green)
+    - Search Bar (purple)
+    - Search Results (blue)
+      - Book (yellow)
+        - Bookshelf Changer (red)
 
 [![ui3](assets/images/p3-small.jpg)](assets/images/p3.jpg)
 
@@ -164,14 +167,14 @@ class BooksApp extends Component {
   render() {
     return (
       <div className="app">
-        <Route exact path="/" component={List} />
-        <Route path="/search" component={Search} />
+        <Route exact path="/" component={BookList} />
+        <Route path="/search" component={BookSearch} />
       </div>
     )
   }
 }
 
-class List extends Component {
+class BookList extends Component {
   render() {
     return (
       <div className="list-books">
@@ -181,7 +184,7 @@ class List extends Component {
   }
 }
 
-class Search extends Component {
+class BookSearch extends Component {
   render() {
     return (
       <div className="search-books">
@@ -191,3 +194,199 @@ class Search extends Component {
   }
 }
 ```
+
+## 4. Components
+### 4.1 Split UI Components
+[The React docs recommend](https://reactjs.org/docs/thinking-in-react.html#step-2-build-a-static-version-in-react) that once the UI/component hierarchy is determined you should build out a static version in React.
+
+This version should take the data model and render the UI without any interactivity yet - meaning we should split out each component in its hierarchy and pass data using **props** but not implement any **state** since **state is reserved for interactivity**.
+
+This image shows roughly how were going to organize the code. Currently all code is in App.js and will remain in one file while I split up the UI.
+
+[![ui2](assets/images/p2-small.jpg)](assets/images/p2.jpg)
+
+Here's how I split up the code starting with the home page.
+
+```jsx
+// App.js{% raw %}
+class BooksApp extends Component {
+  render() {
+    return (
+      <div className="app">
+        <Route exact path="/" component={BookList} />
+        <Route path="/search" component={BookSearch} />
+      </div>
+    );
+  }
+}
+
+class ListBooks extends Component {
+  render() {
+    const { bookshelves } = this.props;
+    return (
+      <div className="list-books">
+        <div className="list-books-title">
+          <h1>MyReads</h1>
+        </div>
+        <Bookcase bookshelves={bookshelves} />
+        <OpenSearchButton />
+      </div>
+    );
+  }
+}
+
+const OpenSearchButton = () => {
+  return (
+    <div className="open-search">
+      <Link to="Search">
+        <button>Add a Book</button>
+      </Link>
+    </div>
+  );
+};
+
+const Bookcase = props => {
+  const { bookshelves } = props;
+  return (
+    <div className="list-books-content">
+      <div>
+        {bookshelves.map(shelf => (
+          <Bookshelf shelf={shelf} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Bookshelf = props => {
+  const { shelf } = props;
+  return (
+    <div className="bookshelf">
+      <h2 className="bookshelf-title">{shelf.name}</h2>
+      <div className="bookshelf-books">
+        <ol className="books-grid">
+          <Book book={{}} />
+        </ol>
+      </div>
+    </div>
+  );
+};
+
+const Book = props => {
+  const { book } = props;
+  return (
+    <li>
+      <div className="book">
+        <div className="book-top">
+          <div
+            className="book-cover"
+            style={{
+              width: 128,
+              height: 193,
+              backgroundImage:
+                'url("http://books.google.com/books/content?id=PGR2Aw...")',
+            }}
+          />
+          <BookshelfChanger />
+        </div>
+        <div className="book-title">To Kill a Mockingbird</div>
+        <div className="book-authors">Harper Lee</div>
+      </div>
+    </li>
+  );
+};
+
+class BookshelfChanger extends Component {
+  render() {
+    return (
+      <div className="book-shelf-changer">
+        <select>
+          <option value="move" disabled>
+            Move to...
+          </option>
+          <option value="currentlyReading">Currently Reading</option>
+          <option value="wantToRead">Want to Read</option>
+          <option value="read">Read</option>
+          <option value="none">None</option>
+        </select>
+      </div>
+    );
+  }
+}
+```
+
+Below is a picture of roughly how were going to break out the Search page components.
+
+[![ui3](assets/images/p3-small.jpg)](assets/images/p3.jpg)
+
+I separated the code into a couple more components than the image shows.
+
+```jsx
+// App.js
+class BookSearch extends Component {
+  render() {
+    return (
+      <div className="search-books">
+        <SearchBar />
+        <SearchResults />
+      </div>
+    );
+  }
+}
+
+const SearchBar = props => {
+  return (
+    <div className="search-books-bar">
+      <CloseSearchButton />
+      <SearchBooksInput />
+    </div>
+  );
+};
+
+const CloseSearchButton = () => {
+  return (
+    <Link to="/">
+      <button className="close-search">Close</button>
+    </Link>
+  );
+};
+
+class SearchBooksInput extends Component {
+  render() {
+    return (
+      <div className="search-books-input-wrapper">
+        <input type="text" placeholder="Search by title or author" />
+      </div>
+    );
+  }
+}
+
+const SearchResults = props => {
+  return (
+    <div className="search-books-results">
+      <ol className="books-grid">
+        <Book />
+      </ol>
+    </div>
+  );
+};{% endraw %}
+```
+
+As I started to breakdown the UI into separate components it began to differ a bit from what I outlined in the previous section. This is because I got a better clarity of how the components should be nested as I was splitting up the code.
+
+So far we have this hierarchy.
+
+- BooksApp
+  - Route {ListBooks}
+    - Bookcase
+      - Bookshelf
+        - Book
+          - BookshelfChanger
+    - OpenSearchButton
+  - Route {SearchBooks}
+    - SearchBar
+      - CloseSearchButton
+      - SearchBooksInput
+    - SearchResults
+      - Book
+        - BookshelfChanger
