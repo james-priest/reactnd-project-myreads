@@ -16,6 +16,12 @@ body, .app {
   padding: 10px 0;
   background: #2e7c31;
   text-align: center;
+  height: 66px;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
 }
 
 .list-books-title h1 {
@@ -25,7 +31,7 @@ body, .app {
 }
 
 .list-books-content {
-  padding: 0 0 80px;
+  padding: 76px 0;
   flex: 1;
 }
 
