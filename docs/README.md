@@ -497,7 +497,6 @@ class BooksApp extends Component {
 
 Now all of our books are available as a `books` property of our BooksApp state.
 
-<!-- 
 ### 4.3 Introduce Props
 Now is the time to use props to pass the data down the hierarchy.
 
@@ -660,4 +659,4 @@ const SearchResults = props => {
 };{% endraw %}
 ```
 
-[![ui6](assets/images/p6-small.jpg)](assets/images/p6.jpg) -->
+[![ui6](assets/images/p6-small.jpg)](assets/images/p6.jpg)
