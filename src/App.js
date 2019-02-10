@@ -392,7 +392,7 @@ const Bookcase = props => {
     <div className="list-books-content">
       <div>
         {bookshelves.map(shelf => (
-          <Bookshelf shelf={shelf} />
+          <Bookshelf key={shelf.key} shelf={shelf} />
         ))}
       </div>
     </div>
