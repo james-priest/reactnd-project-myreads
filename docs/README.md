@@ -251,7 +251,7 @@ const Bookcase = props => {
     <div className="list-books-content">
       <div>
         {bookshelves.map(shelf => (
-          <Bookshelf shelf={shelf} />
+          <Bookshelf key={shelf.key} shelf={shelf} />
         ))}
       </div>
     </div>
@@ -392,3 +392,272 @@ So far we have this hierarchy.
         - BookshelfChanger
 
 The next step will be to bring the data in and start to pass that down as props.
+
+### 4.2 Create Static Data
+The next thing I did was to bring the data into the app as static data which I assigned to state. This is so I can start passing props to child components.
+
+I first started by doing an 'getAll' Ajax request using Postman.
+
+[![ui4](assets/images/p4-small.jpg)](assets/images/p4.jpg)
+
+This returned the data that defines which books show up on each shelf within the MyReads app. It returned the data in this format.
+
+```json
+{
+  "books": [
+    {
+      "title": "Learning Web Development with React and Bootstrap",
+      "authors": [
+        "Harmeet Singh",
+        "Mehul Bhatt"
+      ],
+      "publishedDate": "2016-12-30",
+      "description": "Build real-time responsive web apps using React and...",
+      "industryIdentifiers": [
+        {
+          "type": "ISBN_10",
+          "identifier": "1786462494"
+        },
+        {
+          "type": "ISBN_13",
+          "identifier": "9781786462497"
+        }
+      ],
+      "readingModes": {
+        "text": false,
+        "image": false
+      },
+      "pageCount": 278,
+      "printType": "BOOK",
+      "maturityRating": "NOT_MATURE",
+      "allowAnonLogging": false,
+      "contentVersion": "preview-1.0.0",
+      "panelizationSummary": {
+        "containsEpubBubbles": false,
+        "containsImageBubbles": false
+      },
+      "imageLinks": {
+        "smallThumbnail": "http://books.google.com/books/content?",
+        "thumbnail": "http://books.google.com/books/content?"
+      },
+      "language": "en",
+      "previewLink": "http://books.google.com/books?id=sJf1vQAACAAJ&dq=redux",
+      "infoLink": "http://books.google.com/books?id=sJf1vQAACAAJ&dq=redux",
+      "canonicalVolumeLink": "https://books.google.com/books/about/Learning",
+      "id": "sJf1vQAACAAJ",
+      "shelf": "currentlyReading"
+    },
+    {
+      "title": "another book"
+    }
+  ]
+}
+```
+
+I then created data.js to hold the books data and export a `getAll` method.
+
+```js
+// data.js
+const getAll = [
+  {
+    title: 'The Linux Command Line',
+    subtitle: 'A Complete Introduction',
+    // more data...
+  },
+  {
+    title: 'The React Handbook',
+    subtitle: 'Learning to Build Dynamic UIs',
+    // more data...
+  },
+  // next book...
+];
+
+export default getAll;
+```
+
+I imported data.js into App.js and assigned it to the `state` property for our BooksApp component. At the same time I created a `bookshelves` constant to use with my Bookcase component.
+
+```jsx
+// App.js
+// other import statements...
+import getAll from './data';
+
+class BooksApp extends Component {
+  bookshelves = [
+    { key: 'currentlyReading', name: 'Currently Reading' },
+    { key: 'wantToRead', name: 'Want to Read' },
+    { key: 'read', name: 'Have Read' },
+  ];
+
+  state = {
+    books: getAll,
+  };
+
+```
+
+Now all of our books are available as a `books` property of our BooksApp state.
+
+<!-- 
+### 4.3 Introduce Props
+Now is the time to use props to pass the data down the hierarchy.
+
+Here are the changes for the List Books page.
+
+```jsx
+// App.js
+class BooksApp extends Component {% raw %}
+  bookshelves = [
+    { key: 'currentlyReading', name: 'Currently Reading' },
+    { key: 'wantToRead', name: 'Want to Read' },
+    { key: 'read', name: 'Have Read' },
+  ];
+
+  state = {
+    books: getAll,
+  };
+
+  render() {
+    const { books } = this.state;
+    return (
+      <div className="app">
+        <Route
+          exact
+          path="/"
+          render={() => (
+            <ListBooks bookshelves={this.bookshelves} books={books} />
+          )}
+        />
+        <Route path="/search" render={() => <SearchBooks books={books} />} />
+      </div>
+    );
+  }
+}
+
+class ListBooks extends Component {
+  render() {
+    const { bookshelves, books } = this.props;
+    return (
+      <div className="list-books">
+        <div className="list-books-title">
+          <h1>MyReads</h1>
+        </div>
+        <Bookcase bookshelves={bookshelves} books={books} />
+        <OpenSearchButton />
+      </div>
+    );
+  }
+}
+
+const Bookcase = props => {
+  const { bookshelves, books } = props;
+  return (
+    <div className="list-books-content">
+      <div>
+        {bookshelves.map(shelf => (
+          <Bookshelf key={shelf.key} shelf={shelf} books={books} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Bookshelf = props => {
+  const { shelf, books } = props;
+  const booksOnThisShelf = books.filter(book => book.shelf === shelf.key);
+  return (
+    <div className="bookshelf">
+      <h2 className="bookshelf-title">{shelf.name}</h2>
+      <div className="bookshelf-books">
+        <ol className="books-grid">
+          {booksOnThisShelf.map(book => (
+            <Book key={book.id} book={book} shelf={shelf.key} />
+          ))}
+        </ol>
+      </div>
+    </div>
+  );
+};
+
+const Book = props => {
+  const { book, shelf } = props;
+  return (
+    <li>
+      <div className="book">
+        <div className="book-top">
+          <div
+            className="book-cover"
+            style={{
+              width: 128,
+              height: 193,
+              backgroundImage: `url(${book.imageLinks.thumbnail})`,
+            }}
+          />
+          <BookshelfChanger shelf={shelf} />
+        </div>
+        <div className="book-title">{book.title}</div>
+        <div className="book-authors">{book.authors.join(', ')}</div>
+      </div>
+    </li>
+  );
+};
+
+class BookshelfChanger extends Component {
+  state = {
+    value: this.props.shelf,
+  };
+  handleChange = event => {
+    this.setState({ value: event.target.value });
+  };
+  render() {
+    return (
+      <div className="book-shelf-changer">
+        <select value={this.state.value} onChange={this.handleChange}>
+          <option value="move" disabled>
+            Move to...
+          </option>
+          <option value="currentlyReading">Currently Reading</option>
+          <option value="wantToRead">Want to Read</option>
+          <option value="read">Read</option>
+          <option value="none">None</option>
+        </select>
+      </div>
+    );
+  }
+}{% endraw %}
+```
+
+This now has our books showing up on the appropriate bookshelves.
+
+[![ui5](assets/images/p5-small.jpg)](assets/images/p5.jpg)
+
+Here are the components for the Search Books page
+
+```jsx
+// App.js
+class SearchBooks extends Component {% raw %}
+  render() {
+    const { books } = this.props;
+    return (
+      <div className="search-books">
+        <SearchBar />
+        <SearchResults books={books} />
+      </div>
+    );
+  }
+}
+
+const SearchResults = props => {
+  const { books } = props;
+  return (
+    <div className="search-books-results">
+      <ol className="books-grid">
+        {books.map(book => (
+          <Book key={book.id} book={book} shelf="none" />
+        ))}
+      </ol>
+    </div>
+  );
+};{% endraw %}
+```
+
+[![ui6](assets/images/p6-small.jpg)](assets/images/p6.jpg) -->
