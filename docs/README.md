@@ -42,7 +42,9 @@ Jekyll is what GitHub uses to generate GitHub Pages. Creating a local copy allow
 ### 2.1 What it Does
 The My Reads App allows you to track books and place them on one of three bookshelves.
 
-[![ui1](assets/images/p1-small.jpg)](assets/images/p1.jpg)
+[![ui1](assets/images/p1-small.jpg)](assets/images/p1.jpg)<br>
+**Live Demo:** [reactnd-project-myreads@1-starter-files](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/1-starter-files/) on CodeSandbox
+
 
 Each shelf corresponds to one of the following
 
@@ -195,6 +197,8 @@ class BookSearch extends Component {
 }
 ```
 
+**Live Demo:** [reactnd-project-myreads@2-routing](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/2-routing/) on CodeSandbox
+
 ## 4. Components
 ### 4.1 Split UI Components
 [The React docs recommend](https://reactjs.org/docs/thinking-in-react.html#step-2-build-a-static-version-in-react) that once the UI/component hierarchy is determined you should build out a static version in React.
@@ -203,7 +207,8 @@ This version should take the data model and render the UI without any interactiv
 
 This image shows roughly how were going to organize the code. Currently all code is in App.js and will remain in one file while I split up the UI.
 
-[![ui2](assets/images/p2-small.jpg)](assets/images/p2.jpg)
+[![ui2](assets/images/p2-small.jpg)](assets/images/p2.jpg)<br>
+**Live Demo:** [reactnd-project-myreads@3-split-components](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/3-split-components/) on CodeSandbox
 
 Here's how I split up the code starting with the home page.
 
@@ -317,7 +322,8 @@ class BookshelfChanger extends Component {
 
 Below is a picture of roughly how were going to break out the Search page components.
 
-[![ui3](assets/images/p3-small.jpg)](assets/images/p3.jpg)
+[![ui3](assets/images/p3-small.jpg)](assets/images/p3.jpg)<br>
+**Live Demo:** [reactnd-project-myreads@3-split-components](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/3-split-components/) on CodeSandbox
 
 I separated the code into a couple more components than the image shows.
 
@@ -627,7 +633,8 @@ class BookshelfChanger extends Component {
 
 This now has our books showing up on the appropriate bookshelves.
 
-[![ui5](assets/images/p5-small.jpg)](assets/images/p5.jpg)
+[![ui5](assets/images/p5-small.jpg)](assets/images/p5.jpg)<br>
+**Live Demo:** [reactnd-project-myreads@4-add-props](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/4-add-props/) on CodeSandbox
 
 Here are the components for the Search Books page
 
@@ -659,4 +666,5 @@ const SearchResults = props => {
 };{% endraw %}
 ```
 
-[![ui6](assets/images/p6-small.jpg)](assets/images/p6.jpg)
+[![ui6](assets/images/p6-small.jpg)](assets/images/p6.jpg)<br>
+**Live Demo:** [reactnd-project-myreads@4-add-props](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/4-add-props/) on CodeSandbox
