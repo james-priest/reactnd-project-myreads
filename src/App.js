@@ -5,7 +5,6 @@ import './App.css';
 // import getAll from './data';
 
 class BooksApp extends Component {
-  // bookshelves = ['Currently Reading', 'Want to Read', 'Have Read'];
   bookshelves = [
     { key: 'currentlyReading', name: 'Currently Reading' },
     { key: 'wantToRead', name: 'Want to Read' },
@@ -20,32 +19,21 @@ class BooksApp extends Component {
       this.setState({ books: books });
     });
   };
-  moveBook = (bookId, shelf) => {
-    // console.log('moveBook', bookId, shelf);
-    // console.log(this.state.books.id[bookId]);
-    const updatedBooks = this.state.books.map(book => {
-      if (book.id === bookId) {
-        // console.log(book);
-        book.shelf = shelf;
+  moveBook = (book, shelf) => {
+    // BooksAPI.update(book, shelf);
+    BooksAPI.update(book, shelf).then(books => {
+      console.log(books);
+    });
+    const updatedBooks = this.state.books.map(b => {
+      if (b.id === book.id) {
+        b.shelf = shelf;
       }
-      return book;
+      return b;
     });
 
-    // const filteredBooks = this.state.books.filter(book => book.id !== bookId);
-    // console.log('books len', this.state.books.length);
-    // console.log('filter len', filteredBooks.length);
-    // this.setState({
-    //   books: [...updatedBooks],
-    // });
-    this.setState(
-      prevState => ({
-        // books: [...filteredBooks, book],
-        books: updatedBooks,
-      }),
-      () => {
-        console.log(this.state.books);
-      }
-    );
+    this.setState({
+      books: updatedBooks,
+    });
   };
   // getBookshelfBooks = () => {
   //   BooksAPI.getAll().then(books => {
@@ -166,7 +154,7 @@ const Book = props => {
               backgroundImage: `url(${book.imageLinks.thumbnail})`,
             }}
           />
-          <BookshelfChanger bookId={book.id} shelf={shelf} onMove={onMove} />
+          <BookshelfChanger book={book} shelf={shelf} onMove={onMove} />
         </div>
         <div className="book-title">{book.title}</div>
         <div className="book-authors">{book.authors.join(', ')}</div>
@@ -181,7 +169,7 @@ class BookshelfChanger extends Component {
   };
   handleChange = event => {
     this.setState({ value: event.target.value });
-    this.props.onMove(this.props.bookId, event.target.value);
+    this.props.onMove(this.props.book, event.target.value);
   };
   render() {
     // console.log(this.props.shelf);
