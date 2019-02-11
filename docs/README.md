@@ -798,6 +798,11 @@ Here's an excerpt from the old React docs on this.
 
 > *However, it’s not an anti-pattern if you make it clear that the prop is only seed data for the component’s internally-controlled state*
 
+Here's the UI with books that are moved from "Currently Reading" to "Want to Read".
+
+[![ui7](assets/images/p7-small.jpg)](assets/images/p7.jpg)<br>
+**Live Demo:** [reactnd-project-myreads@5-add-books-state](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/5-add-books-state/) on CodeSandbox
+
 <!-- 
 ### 5.2 Adding Ajax to App
 The next thing I did was to  -->
