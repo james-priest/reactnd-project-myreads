@@ -607,16 +607,10 @@ const Book = props => {
 };
 
 class BookshelfChanger extends Component {
-  state = {
-    value: this.props.shelf,
-  };
-  handleChange = event => {
-    this.setState({ value: event.target.value });
-  };
   render() {
     return (
       <div className="book-shelf-changer">
-        <select value={this.state.value} onChange={this.handleChange}>
+        <select value={this.props.shelf}>
           <option value="move" disabled>
             Move to...
           </option>
@@ -668,3 +662,142 @@ const SearchResults = props => {
 
 [![ui6](assets/images/p6-small.jpg)](assets/images/p6.jpg)<br>
 **Live Demo:** [reactnd-project-myreads@4-add-props](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/4-add-props/) on CodeSandbox
+
+## 5. Interactivity
+### 5.1 Move Book to Shelf
+Now we create a `moveBook` method which si in charge of moving a book from one bookshelf to another.
+
+It lives at the top of the component stack in BooksApp so that it can access state which we also lifted to live here.
+
+```jsx
+// App.js
+import getAll from './data';
+
+class BooksApp extends Component {
+   bookshelves = [
+    { key: 'currentlyReading', name: 'Currently Reading' },
+    { key: 'wantToRead', name: 'Want to Read' },
+    { key: 'read', name: 'Read' },
+  ];
+  state = {
+    books: getAll
+  };
+  moveBook = (bookId, shelf) => {
+    const updatedBooks = this.state.books.map(book => {
+      if (book.id === bookId) {
+        book.shelf = shelf;
+      }
+      return book;
+    });
+
+    this.setState({
+      books: updatedBooks
+    });
+  };
+}
+
+render() {
+    const { books } = this.state;
+    return (
+      <div className="app">
+        <Route
+          exact
+          path="/"
+          render={() => (
+            <ListBooks
+              bookshelves={this.bookshelves}
+              books={books}
+              onMove={this.moveBook}
+            />
+          )}
+        />
+        <Route
+          path="/search"
+          render={() => (
+            <SearchBooks
+              books={searchBooks}
+              onMove={this.moveBook}
+            />
+          )}
+        />
+      </div>
+    );
+  }
+}
+```
+
+Next the method needs to be passed down to the BookshelfChanger component. This means it has to go through:
+
+- ListBooks
+  - Bookcase
+    - Bookshelf
+      - Book
+        - BookshelfChanger
+
+Here is the ListBooks component showing how `this.props` is destructured and then passed to the next nested component.
+
+```jsx
+// App.js
+class ListBooks extends Component {
+  render() {
+    const { bookshelves, books, onMove } = this.props;
+    return (
+      <div className="list-books">
+        <div className="list-books-title">
+          <h1>MyReads</h1>
+        </div>
+        <Bookcase bookshelves={bookshelves} books={books} onMove={onMove} />
+        <OpenSearchButton />
+      </div>
+    );
+  }
+}
+```
+
+This same pattern is followed all the way down to BookshelfChanger. Once there, `onMove` is invoked in the `handleChange` method.
+
+The pattern we see here is that of a [Controlled Component](https://reactjs.org/docs/forms.html?no-cache=1#controlled-components) where React is used to manage the element's state making React the "single source of truth".
+
+We do this by creating a state property to manage the select element's value. We then assign it to the select element's `value` attribute. Lastly, we create an `onChange` method to update state as the value changes.
+
+```jsx
+// App.js
+class BookshelfChanger extends Component {
+  state = {
+    value: this.props.shelf,
+  };
+  handleChange = event => {
+    this.setState({ value: event.target.value });
+    this.props.onMove(this.props.bookId, event.target.value);
+  };
+  render() {
+    return (
+      <div className="book-shelf-changer">
+        <select value={this.state.value} onChange={this.handleChange}>
+          <option value="move" disabled>
+            Move to...
+          </option>
+          <option value="currentlyReading">Currently Reading</option>
+          <option value="wantToRead">Want to Read</option>
+          <option value="read">Read</option>
+          <option value="none">None</option>
+        </select>
+      </div>
+    );
+  }
+}
+```
+
+It's in the handleChange method that we invoke the onMove method, passing it the `bookId` and `shelf` the book is being moved to.
+
+One thing to note is that we are using props to set state. Normally this is an anti-pattern because it leads to the data living in two separate places.
+
+In this case we are using props to set an initial value and don't need any changes in props to stay in sync with state.
+
+Here's an excerpt from the old React docs on this.
+
+> *However, it’s not an anti-pattern if you make it clear that the prop is only seed data for the component’s internally-controlled state*
+
+<!-- 
+### 5.2 Adding Ajax to App
+The next thing I did was to  -->
