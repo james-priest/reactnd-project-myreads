@@ -1,33 +1,91 @@
 import React, { Component } from 'react';
 import { Route, Link } from 'react-router-dom';
-// import * as BooksAPI from './BooksAPI'
+import * as BooksAPI from './BooksAPI';
 import './App.css';
-import getAll from './data';
+// import getAll from './data';
 
 class BooksApp extends Component {
   // bookshelves = ['Currently Reading', 'Want to Read', 'Have Read'];
   bookshelves = [
     { key: 'currentlyReading', name: 'Currently Reading' },
     { key: 'wantToRead', name: 'Want to Read' },
-    { key: 'read', name: 'Have Read' },
+    { key: 'read', name: 'Read' },
   ];
-
   state = {
-    books: getAll,
+    books: [],
+    searchBooks: [],
+  };
+  componentDidMount = () => {
+    BooksAPI.getAll().then(books => {
+      this.setState({ books: books });
+    });
+  };
+  moveBook = (bookId, shelf) => {
+    // console.log('moveBook', bookId, shelf);
+    // console.log(this.state.books.id[bookId]);
+    const updatedBooks = this.state.books.map(book => {
+      if (book.id === bookId) {
+        // console.log(book);
+        book.shelf = shelf;
+      }
+      return book;
+    });
+
+    // const filteredBooks = this.state.books.filter(book => book.id !== bookId);
+    // console.log('books len', this.state.books.length);
+    // console.log('filter len', filteredBooks.length);
+    // this.setState({
+    //   books: [...updatedBooks],
+    // });
+    this.setState(
+      prevState => ({
+        // books: [...filteredBooks, book],
+        books: updatedBooks,
+      }),
+      () => {
+        console.log(this.state.books);
+      }
+    );
+  };
+  // getBookshelfBooks = () => {
+  //   BooksAPI.getAll().then(books => {
+  //     console.log(books);
+  //     this.setState({ books: books });
+  //   });
+  // };
+  searchForBooks = query => {
+    console.log(query);
+    BooksAPI.search(query).then(books => {
+      // console.log(books);
+      this.setState({ searchBooks: books });
+    });
   };
 
   render() {
-    const { books } = this.state;
+    const { books, searchBooks } = this.state;
     return (
       <div className="app">
         <Route
           exact
           path="/"
           render={() => (
-            <ListBooks bookshelves={this.bookshelves} books={books} />
+            <ListBooks
+              bookshelves={this.bookshelves}
+              books={books}
+              onMove={this.moveBook}
+            />
           )}
         />
-        <Route path="/search" render={() => <SearchBooks books={books} />} />
+        <Route
+          path="/search"
+          render={() => (
+            <SearchBooks
+              books={searchBooks}
+              onSearch={this.searchForBooks}
+              onMove={this.moveBook}
+            />
+          )}
+        />
       </div>
     );
   }
@@ -35,13 +93,13 @@ class BooksApp extends Component {
 
 class ListBooks extends Component {
   render() {
-    const { bookshelves, books } = this.props;
+    const { bookshelves, books, onMove } = this.props;
     return (
       <div className="list-books">
         <div className="list-books-title">
           <h1>MyReads</h1>
         </div>
-        <Bookcase bookshelves={bookshelves} books={books} />
+        <Bookcase bookshelves={bookshelves} books={books} onMove={onMove} />
         <OpenSearchButton />
       </div>
     );
@@ -59,12 +117,17 @@ const OpenSearchButton = () => {
 };
 
 const Bookcase = props => {
-  const { bookshelves, books } = props;
+  const { bookshelves, books, onMove } = props;
   return (
     <div className="list-books-content">
       <div>
         {bookshelves.map(shelf => (
-          <Bookshelf key={shelf.key} shelf={shelf} books={books} />
+          <Bookshelf
+            key={shelf.key}
+            shelf={shelf}
+            books={books}
+            onMove={onMove}
+          />
         ))}
       </div>
     </div>
@@ -72,7 +135,7 @@ const Bookcase = props => {
 };
 
 const Bookshelf = props => {
-  const { shelf, books } = props;
+  const { shelf, books, onMove } = props;
   const booksOnThisShelf = books.filter(book => book.shelf === shelf.key);
   // console.log('booksOnThisShelf', booksOnThisShelf);
   return (
@@ -81,7 +144,7 @@ const Bookshelf = props => {
       <div className="bookshelf-books">
         <ol className="books-grid">
           {booksOnThisShelf.map(book => (
-            <Book key={book.id} book={book} shelf={shelf.key} />
+            <Book key={book.id} book={book} shelf={shelf.key} onMove={onMove} />
           ))}
         </ol>
       </div>
@@ -90,7 +153,7 @@ const Bookshelf = props => {
 };
 
 const Book = props => {
-  const { book, shelf } = props;
+  const { book, shelf, onMove } = props;
   return (
     <li>
       <div className="book">
@@ -103,7 +166,7 @@ const Book = props => {
               backgroundImage: `url(${book.imageLinks.thumbnail})`,
             }}
           />
-          <BookshelfChanger shelf={shelf} />
+          <BookshelfChanger bookId={book.id} shelf={shelf} onMove={onMove} />
         </div>
         <div className="book-title">{book.title}</div>
         <div className="book-authors">{book.authors.join(', ')}</div>
@@ -118,6 +181,7 @@ class BookshelfChanger extends Component {
   };
   handleChange = event => {
     this.setState({ value: event.target.value });
+    this.props.onMove(this.props.bookId, event.target.value);
   };
   render() {
     // console.log(this.props.shelf);
@@ -139,11 +203,11 @@ class BookshelfChanger extends Component {
 
 class SearchBooks extends Component {
   render() {
-    const { books } = this.props;
+    const { books, onSearch } = this.props;
     // console.log(books);
     return (
       <div className="search-books">
-        <SearchBar />
+        <SearchBar onSearch={onSearch} />
         <SearchResults books={books} />
       </div>
     );
@@ -151,10 +215,11 @@ class SearchBooks extends Component {
 }
 
 const SearchBar = props => {
+  const { onSearch } = props;
   return (
     <div className="search-books-bar">
       <CloseSearchButton />
-      <SearchBooksInput />
+      <SearchBooksInput onSearch={onSearch} />
     </div>
   );
 };
@@ -168,18 +233,27 @@ const CloseSearchButton = () => {
 };
 
 class SearchBooksInput extends Component {
+  state = {
+    value: '',
+  };
+  handleChange = event => {
+    this.setState({ value: event.target.value });
+  };
+  handleSubmit = e => {
+    e.preventDefault();
+    this.props.onSearch(this.state.value);
+  };
   render() {
     return (
       <div className="search-books-input-wrapper">
-        {/*
-                  NOTES: The search from BooksAPI is limited to a particular set of search terms.
-                  You can find these search terms here:
-                  https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
-
-                  However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
-                  you don't find a specific author or title. Every search is limited by search terms.
-                */}
-        <input type="text" placeholder="Search by title or author" />
+        <form onSubmit={this.handleSubmit}>
+          <input
+            type="text"
+            value={this.state.value}
+            placeholder="Search by title or author"
+            onChange={this.handleChange}
+          />
+        </form>
       </div>
     );
   }
