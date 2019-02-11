@@ -597,7 +597,7 @@ const Book = props => {
               backgroundImage: `url(${book.imageLinks.thumbnail})`,
             }}
           />
-          <BookshelfChanger shelf={shelf} />
+          <BookshelfChanger book={book} shelf={shelf} />
         </div>
         <div className="book-title">{book.title}</div>
         <div className="book-authors">{book.authors.join(', ')}</div>
@@ -682,16 +682,16 @@ class BooksApp extends Component {
   state = {
     books: getAll
   };
-  moveBook = (bookId, shelf) => {
-    const updatedBooks = this.state.books.map(book => {
-      if (book.id === bookId) {
-        book.shelf = shelf;
+  moveBook = (book, shelf) => {
+    const updatedBooks = this.state.books.map(b => {
+      if (b.id === book.id) {
+        b.shelf = shelf;
       }
-      return book;
+      return b;
     });
 
     this.setState({
-      books: updatedBooks
+      books: updatedBooks,
     });
   };
 }
@@ -768,7 +768,7 @@ class BookshelfChanger extends Component {
   };
   handleChange = event => {
     this.setState({ value: event.target.value });
-    this.props.onMove(this.props.bookId, event.target.value);
+    this.props.onMove(this.props.book, event.target.value);
   };
   render() {
     return (
@@ -803,6 +803,65 @@ Here's the UI with books that are moved from "Currently Reading" to "Want to Rea
 [![ui7](assets/images/p7-small.jpg)](assets/images/p7.jpg)<br>
 **Live Demo:** [reactnd-project-myreads@5-add-books-state](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/5-add-books-state/) on CodeSandbox
 
-<!-- 
-### 5.2 Adding Ajax to App
-The next thing I did was to  -->
+### 5.2 Ajax to Get All Books
+The next thing I did was to remove the reference to hard-coded data and add an Ajax request to dynamically pull down the books.
+
+This is done in the componentDidMount method of BooksApp.
+
+```jsx
+// App.js
+// more import...
+import * as BooksAPI from './BooksAPI';
+
+class BooksApp extends Component {
+  bookshelves = [
+    { key: 'currentlyReading', name: 'Currently Reading' },
+    { key: 'wantToRead', name: 'Want to Read' },
+    { key: 'read', name: 'Read' },
+  ];
+  state = {
+    books: [],
+    searchBooks: [],
+  };
+  componentDidMount = () => {
+    BooksAPI.getAll().then(books => {
+      this.setState({ books: books });
+    });
+  };
+
+  render() {
+    // render code...
+  }
+}
+```
+
+### 5.3 Ajax to Update Shelf
+Now we need to invoke the Ajax requests that updates the database whenever we move a book to a new shelf.
+
+```jsx
+// App.js
+class BooksApp extends Component {
+  // code...
+  moveBook = (book, shelf) => {
+    BooksAPI.update(book, shelf).then(books => {
+      console.log(books);
+    });
+    const updatedBooks = this.state.books.map(b => {
+      if (b.id === book.id) {
+        b.shelf = shelf;
+      }
+      return b;
+    });
+
+    this.setState({
+      books: updatedBooks,
+    });
+  };
+  // more code...
+```
+
+We test that the data is being updated by capturing the response and logging it out to the console.
+
+This shows the book.id by shelf.
+
+[![ui8](assets/images/p8-small.jpg)](assets/images/p8.jpg)
