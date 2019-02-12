@@ -822,8 +822,7 @@ class BooksApp extends Component {
     { key: 'read', name: 'Read' },
   ];
   state = {
-    books: [],
-    searchBooks: [],
+    books: []
   };
   componentDidMount = () => {
     BooksAPI.getAll().then(books => {
@@ -869,5 +868,175 @@ This shows the book.id by shelf.
 [![ui8](assets/images/p8-small.jpg)](assets/images/p8.jpg)<br>
 **Live Demo:** [reactnd-project-myreads@6-add-books-ajax](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/6-add-books-ajax/) on CodeSandbox
 
+## 6. Search Page
+### 6.1 Build Search Input
+The Search page is responsible for a few things which are triggered by the Search input. Here are the requirements:
+
+- As the user types into the search field, books that match the query are displayed on the page, along with their titles and authors.
+- Throttle/Debounce may be used to limit input and provide a smooth UX.
+- Search results are not shown when all of the text is deleted out of the search input box.
+- Invalid queries are handled and prior search results are not shown.
+- The search works correctly when a book does not have a thumbnail or an author.
+- The user is able to search for multiple words, such as "artificial intelligence."
+
+The first thing to do is create a new state property called `searchBooks` which will contain the search results. We'll do this at the top of the hierarchy in BooksApp.
+
+We also create a `searchForBooks` method and a `resetSearch` method. These will be invoked from the SearchBooksInput and CloseSearchButton components.
+
+```jsx
+// App.js
+class BooksApp extends Component {
+  //code...
+  state = {
+    books: [],
+    searchBooks: [],
+  };
+  // more code...
+  searchForBooks = query => {
+    if (query.length > 0) {
+      BooksAPI.search(query).then(books => {
+        if (books.error) {
+          this.setState({ searchBooks: [] });
+        } else {
+          this.setState({ searchBooks: books });
+        }
+      });
+    } else {
+      this.setState({ searchBooks: [] });
+    }
+  };
+  resetSearch = () => {
+    this.setState({ searchBooks: [] });
+  };
+```
+
+What the code does is it invokes the Ajax call if the query length is greater than zero otherwise it clears the data. It then sets the state to an empty array if there is no match (error returned). Otherwise state is set with the results.
+
+Below is where we pass the handlers as props within our Search Route.
+
+```jsx
+// App.js
+class BooksApp extends Component {
+  // code...
+  render() {
+    const { books, searchBooks } = this.state;
+    return (
+      <div className="app">
+        {/* ListBooks Route */}
+        <Route
+          path="/search"
+          render={() => (
+            <SearchBooks
+              books={searchBooks}
+              onSearch={this.searchForBooks}
+              onMove={this.moveBook}
+              onResetSearch={this.resetSearch}
+            />
+          )}
+        />
+      </div>
+    );
+  }
+}
+```
+
+Here we show the props being passed through child components on their way to their destination.
+
+```jsx
+class SearchBooks extends Component {
+  render() {
+    const { books, onSearch, onResetSearch } = this.props;
+    return (
+      <div className="search-books">
+        <SearchBar onSearch={onSearch} onResetSearch={onResetSearch} />
+        <SearchResults books={books} />
+      </div>
+    );
+  }
+}
+const SearchBar = props => {
+  const { onSearch, onResetSearch } = props;
+  return (
+    <div className="search-books-bar">
+      <CloseSearchButton onResetSearch={onResetSearch} />
+      <SearchBooksInput onSearch={onSearch} />
+    </div>
+  );
+};
+```
+
+Here we invoke the reset handler when the button inside CloseSearchButton component is clicked.
+
+```jsx
+const CloseSearchButton = props => {
+  const { onResetSearch } = props;
+  return (
+    <Link to="/">
+      <button className="close-search" onClick={onResetSearch}>
+        Close
+      </button>
+    </Link>
+  );
+};
+```
+
+Lastly, we set up the search input as a controlled component. We use onChange to update local state and to trigger the onSearch handler (searchForBooks method defined in BooksApp).
+
+```jsx
+class SearchBooksInput extends Component {
+  state = {
+    value: '',
+  };
+  handleChange = event => {
+    const val = event.target.value;
+    this.setState({ value: val }, () => {
+      this.props.onSearch(val);
+    });
+  };
+  render() {
+    return (
+      <div className="search-books-input-wrapper">
+        <input
+          type="text"
+          value={this.state.value}
+          placeholder="Search by title or author"
+          onChange={this.handleChange}
+          autoFocus
+        />
+      </div>
+    );
+  }
+}
+```
+
 <!-- 
-## 6. Search Page -->
+### 6.2 Throttle / Debounce
+The next thing we need to do implement throttle / debounce so that the number of Ajax calls are limited to a reasonable number.
+
+Throttle limits the number of calls within a certain time period and debounce will call only once every elapsed period of time.
+
+In our case we need debounce which we'll implement on our searchForBooks method by wrapping the arrow function like this.
+
+```jsx
+// app.js
+class BooksApp extends Component {
+  // code...
+  searchForBooks = debounce(300, false, query => {
+    console.log(query);
+    if (query.length > 0) {
+      BooksAPI.search(query).then(books => {
+        console.log(books);
+        if (books.error) {
+          this.setState({ searchBooks: [] });
+        } else {
+          this.setState({ searchBooks: books });
+        }
+      });
+    } else {
+      this.setState({ searchBooks: [] });
+    }
+  });
+```
+
+### 6.3 Fix Edge Cases
+ -->
