@@ -1009,7 +1009,6 @@ class SearchBooksInput extends Component {
 }
 ```
 
-<!-- 
 ### 6.2 Throttle / Debounce
 The next thing we need to do implement throttle / debounce so that the number of Ajax calls are limited to a reasonable number.
 
@@ -1038,5 +1037,6 @@ class BooksApp extends Component {
   });
 ```
 
+<!-- 
 ### 6.3 Fix Edge Cases
  -->
