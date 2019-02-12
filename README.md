@@ -38,4 +38,4 @@ The project can be viewed in the browser at
 
 ![screenshot1](./docs/assets/images/p1.jpg)
 
-![screenshot2](./docs/assets/images/p6.jpg)
+![screenshot2](./docs/assets/images/p9.jpg)
