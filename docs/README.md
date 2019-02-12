@@ -866,7 +866,8 @@ We test that the data is being updated by capturing the response and logging it 
 
 This shows the book.id by shelf.
 
-[![ui8](assets/images/p8-small.jpg)](assets/images/p8.jpg)
+[![ui8](assets/images/p8-small.jpg)](assets/images/p8.jpg)<br>
+**Live Demo:** [reactnd-project-myreads@6-add-books-ajax](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/6-add-books-ajax/) on CodeSandbox
 
 <!-- 
 ## 6. Search Page -->
