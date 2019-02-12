@@ -1037,6 +1037,40 @@ class BooksApp extends Component {
   });
 ```
 
-<!-- 
 ### 6.3 Fix Edge Cases
- -->
+Next we need to make sure the app handles books which are missing authors or thumbnails.
+
+This can be done with logical && format for backgroundImage and book.authors.
+
+```jsx
+const Book = props => {
+  const { book, shelf, onMove } = props;
+  return (
+    <li>
+      <div className="book">
+        <div className="book-top">
+          <div
+            className="book-cover"{% raw %}
+            style={{
+              width: 128,
+              height: 193,
+              backgroundImage: `url(${book.imageLinks &&
+                book.imageLinks.thumbnail})`,
+            }}{% endraw %}
+          />
+          <BookshelfChanger book={book} shelf={shelf} onMove={onMove} />
+        </div>
+        <div className="book-title">{book.title}</div>
+        <div className="book-authors">
+          {book.authors && book.authors.join(', ')}
+        </div>
+      </div>
+    </li>
+  );
+};
+```
+
+Now the interface returns data as we type and clears the page when we erase the input field. Here's a screenshot.
+
+[![ui9](assets/images/p9-small.jpg)](assets/images/p9.jpg)<br>
+**Live Demo:** [reactnd-project-myreads@7-add-search-ajax](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/7-add-search-ajax/) on CodeSandbox
