@@ -1012,12 +1012,20 @@ class SearchBooksInput extends Component {
 ### 6.2 Throttle / Debounce
 The next thing we need to do implement throttle / debounce so that the number of Ajax calls are limited to a reasonable number.
 
-Throttle limits the number of calls within a certain time period and debounce will call only once every elapsed period of time.
+Throttle limits the number of calls to once within a certain time period and debounce will wait a certain period of time after the last call to invoke the function.
 
 In our case we need debounce which we'll implement on our searchForBooks method by wrapping the arrow function like this.
 
+First we need to install the library.
+
+```bash
+npm install throttle-debounce
+```
+
 ```jsx
 // app.js
+import { debounce } from 'throttle-debounce';
+
 class BooksApp extends Component {
   // code...
   searchForBooks = debounce(300, false, query => {
