@@ -1,4 +1,4 @@
-<!-- markdownlint-disable MD022 MD024 MD032 -->
+<!-- markdownlint-disable MD022 MD024 MD032 MD033 -->
 # Code Notes
 
 <!-- [![udacity-react](assets/images/udacity-react-small.jpg)](assets/images/udacity-react.jpg) -->
@@ -44,7 +44,6 @@ The My Reads App allows you to track books and place them on one of three booksh
 
 [![ui1](assets/images/p1-small.jpg)](assets/images/p1.jpg)<br>
 **Live Demo:** [reactnd-project-myreads@1-starter-files](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/1-starter-files/) on CodeSandbox
-
 
 Each shelf corresponds to one of the following
 
@@ -408,6 +407,8 @@ I first started by doing an 'getAll' Ajax request using Postman.
 
 This returned the data that defines which books show up on each shelf within the MyReads app. It returned the data in this format.
 
+/* cSpell:disable */
+
 ```json
 {
   "books": [
@@ -460,6 +461,7 @@ This returned the data that defines which books show up on each shelf within the
 }
 ```
 
+/* cSpell:enable */
 I then created data.js to hold the books data and export a `getAll` method.
 
 ```js
@@ -663,9 +665,9 @@ const SearchResults = props => {
 [![ui6](assets/images/p6-small.jpg)](assets/images/p6.jpg)<br>
 **Live Demo:** [reactnd-project-myreads@4-add-props](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/4-add-props/) on CodeSandbox
 
-## 5. Interactivity
+## 5. Main Page
 ### 5.1 Move Book to Shelf
-Now we create a `moveBook` method which si in charge of moving a book from one bookshelf to another.
+Now we create a `moveBook` method which is in charge of moving a book from one bookshelf to another.
 
 It lives at the top of the component stack in BooksApp so that it can access state which we also lifted to live here.
 
@@ -865,3 +867,6 @@ We test that the data is being updated by capturing the response and logging it 
 This shows the book.id by shelf.
 
 [![ui8](assets/images/p8-small.jpg)](assets/images/p8.jpg)
+
+<!-- 
+## 6. Search Page -->
