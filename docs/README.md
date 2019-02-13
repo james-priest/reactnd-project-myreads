@@ -1220,8 +1220,32 @@ The code maps over the books in my search results and for each book it then maps
 
 The image shows a search result that displays books I've already added. It now shows the shelf it currently sits on.
 
-<!-- 
-### 7.2 Update Book Move
+### 7.3 Refactor Book Move
+The next step is to update the bookMove method to handle books that have been added from Search and which do not have a shelf property.
 
+```jsx
+// App.js
+class BooksApp extends Component {
+  // code..
+  moveBook = (book, shelf) => {
+    // update db
+    BooksAPI.update(book, shelf);
 
-### 7.3 Separate Components -->
+    let updatedBooks = [];
+    updatedBooks = this.state.myBooks.filter(b => b.id !== book.id);
+
+    if (shelf !== 'none') {
+      book.shelf = shelf;
+      updatedBooks = updatedBooks.concat(book);
+    }
+
+    this.setState({
+      myBooks: updatedBooks,
+    });
+  };
+```
+
+This code updates the db and filters out the book from `myBooks`. Then, if a shelf other than 'none' is specified the `shelf` property is added to the book and the book is added to our state.
+
+<!--
+### 7.4 Separate Components -->
