@@ -242,7 +242,7 @@ class ListBooks extends Component {
 const OpenSearchButton = () => {
   return (
     <div className="open-search">
-      <Link to="Search">
+      <Link to="search">
         <button>Add a Book</button>
       </Link>
     </div>
@@ -943,6 +943,7 @@ class BooksApp extends Component {
 Here we show the props being passed through child components on their way to their destination.
 
 ```jsx
+// App.js
 class SearchBooks extends Component {
   render() {
     const { books, onSearch, onResetSearch } = this.props;
@@ -968,6 +969,7 @@ const SearchBar = props => {
 Here we invoke the reset handler when the button inside CloseSearchButton component is clicked.
 
 ```jsx
+// App.js
 const CloseSearchButton = props => {
   const { onResetSearch } = props;
   return (
@@ -983,6 +985,7 @@ const CloseSearchButton = props => {
 Lastly, we set up the search input as a controlled component. We use onChange to update local state and to trigger the onSearch handler (searchForBooks method defined in BooksApp).
 
 ```jsx
+// App.js
 class SearchBooksInput extends Component {
   state = {
     value: '',
@@ -1023,7 +1026,7 @@ npm install throttle-debounce
 ```
 
 ```jsx
-// app.js
+// App.js
 import { debounce } from 'throttle-debounce';
 
 class BooksApp extends Component {
@@ -1051,6 +1054,7 @@ Next we need to make sure the app handles books which are missing authors or thu
 This can be done with logical && format for backgroundImage and book.authors.
 
 ```jsx
+// App.js
 const Book = props => {
   const { book, shelf, onMove } = props;
   return (
@@ -1082,3 +1086,143 @@ Now the interface returns data as we type and clears the page when we erase the 
 
 [![ui9](assets/images/p9-small.jpg)](assets/images/p9.jpg)<br>
 **Live Demo:** [reactnd-project-myreads@7-add-search-ajax](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/7-add-search-ajax/) on CodeSandbox
+
+## 7. Sync Books & Search
+### 7.1 Refactor Props
+The next piece involved getting the books from search results to reflect the same category (shelf) as my main page if any of the results contained books I've already added.
+
+This required me to refactor some code so I could pass books from my main page along with books from the search request.
+
+Both `myBooks` and `searchBooks` state needed to be passed to SearchBooks component.
+
+```jsx
+// App.js
+class BooksApp extends Component {
+  state = {
+    myBooks: [],
+    searchBooks: [],
+  };
+  // code...
+  render() {
+    const { myBooks, searchBooks } = this.state;
+    return (
+      <div className="app">
+        <Route
+          exact
+          path="/"
+          render={() => (
+            <ListBooks
+              bookshelves={this.bookshelves}
+              books={myBooks}
+              onMove={this.moveBook}
+            />
+          )}
+        />
+        <Route
+          path="/search"
+          render={() => (
+            <SearchBooks
+              searchBooks={searchBooks}
+              myBooks={myBooks}
+              onSearch={this.searchForBooks}
+              onMove={this.moveBook}
+              onResetSearch={this.resetSearch}
+            />
+          )}
+        />
+      </div>
+    );
+  }
+}
+```
+
+Next the SearchBooks and SearchResults components are updated to pass and receive both `myBooks` and `searchBooks` as props.
+
+```jsx
+// App.js
+class SearchBooks extends Component {
+  render() {
+    const {
+      searchBooks,
+      myBooks,
+      onSearch,
+      onResetSearch,
+      onMove,
+    } = this.props;
+    return (
+      <div className="search-books">
+        <SearchBar onSearch={onSearch} onResetSearch={onResetSearch} />
+        <SearchResults
+          searchBooks={searchBooks}
+          myBooks={myBooks}
+          onMove={onMove}
+        />
+      </div>
+    );
+  }
+}
+
+const SearchResults = props => {
+  const { searchBooks, myBooks, onMove } = props;
+  return (
+    <div className="search-books-results">
+      <ol className="books-grid">
+        {searchBooks.map(book => (
+          <Book
+            key={book.id}
+            book={book}
+            shelf={book.shelf ? book.shelf : 'none'}
+            onMove={onMove}
+          />
+        ))}
+      </ol>
+    </div>
+  );
+};
+```
+
+<!-- 
+### 7.2 Update Search Display
+Next I needed to have the Search Results reflect the state of any books I've already added to my shelves. A book should read "none" if it hasn't been added.
+
+```jsx
+// App.js
+const SearchResults = props => {
+  const { searchBooks, myBooks, onMove } = props;
+  const updatedBooks = searchBooks.map(book => {
+    myBooks.map(b => {
+      if (b.id === book.id) {
+        book.shelf = b.shelf;
+      }
+      return b;
+    });
+    return book;
+  });
+  return (
+    <div className="search-books-results">
+      <ol className="books-grid">
+        {updatedBooks.map(book => (
+          <Book
+            key={book.id}
+            book={book}
+            shelf={book.shelf ? book.shelf : 'none'}
+            onMove={onMove}
+          />
+        ))}
+      </ol>
+    </div>
+  );
+};
+```
+
+The code maps over the books in my search results and for each book it then maps over my added books and if there's a match it sets the shelf property.
+
+[![ui10](assets/images/p10-small.jpg)](assets/images/p10.jpg)
+
+The image shows a search result that displays books I've already added. It now shows the shelf it currently sits on.
+
+
+### 7.2 Update Book Move
+
+
+### 7.3 Separate Components -->
