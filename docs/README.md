@@ -1216,7 +1216,8 @@ const SearchResults = props => {
 
 The code maps over the books in my search results and for each book it then maps over my added books and if there's a match it sets the shelf property.
 
-[![ui10](assets/images/p10-small.jpg)](assets/images/p10.jpg)
+[![ui10](assets/images/p10-small.jpg)](assets/images/p10.jpg)<br>
+**Live Demo:** [reactnd-project-myreads@8-sync-books-and-search](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/8-sync-books-and-search/) on CodeSandbox
 
 The image shows a search result that displays books I've already added. It now shows the shelf it currently sits on.
 
@@ -1246,6 +1247,11 @@ class BooksApp extends Component {
 ```
 
 This code updates the db and filters out the book from `myBooks`. Then, if a shelf other than 'none' is specified the `shelf` property is added to the book and the book is added to our state.
+
+This shows the book displayed on our main pages on the proper shelf.
+
+[![ui11](assets/images/p11-small.jpg)](assets/images/p11.jpg)<br>
+**Live Demo:** [reactnd-project-myreads@8-sync-books-and-search](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/8-sync-books-and-search/) on CodeSandbox
 
 <!--
 ### 7.4 Separate Components -->
