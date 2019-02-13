@@ -1181,7 +1181,6 @@ const SearchResults = props => {
 };
 ```
 
-<!-- 
 ### 7.2 Update Search Display
 Next I needed to have the Search Results reflect the state of any books I've already added to my shelves. A book should read "none" if it hasn't been added.
 
@@ -1221,7 +1220,7 @@ The code maps over the books in my search results and for each book it then maps
 
 The image shows a search result that displays books I've already added. It now shows the shelf it currently sits on.
 
-
+<!-- 
 ### 7.2 Update Book Move
 
 
