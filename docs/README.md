@@ -406,8 +406,7 @@ I first started by doing an 'getAll' Ajax request using Postman.
 [![ui4](assets/images/p4-small.jpg)](assets/images/p4.jpg)
 
 This returned the data that defines which books show up on each shelf within the MyReads app. It returned the data in this format.
-
-/* cSpell:disable */
+<!-- cSpell:disable -->
 
 ```json
 {
@@ -461,7 +460,7 @@ This returned the data that defines which books show up on each shelf within the
 }
 ```
 
-/* cSpell:enable */
+<!-- cSpell:enable -->
 I then created data.js to hold the books data and export a `getAll` method.
 
 ```js
@@ -1253,5 +1252,383 @@ This shows the book displayed on our main pages on the proper shelf.
 [![ui11](assets/images/p11-small.jpg)](assets/images/p11.jpg)<br>
 **Live Demo:** [reactnd-project-myreads@8-sync-books-and-search](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/8-sync-books-and-search/) on CodeSandbox
 
-<!--
-### 7.4 Separate Components -->
+## 8. Prep for Submission
+### 8.1 Separate Components
+The next step is to separate each component into its own file to promote easy reuse. Rather than one large App.js file we now have the following.
+
+#### App.js
+
+```jsx
+import React, { Component } from 'react';{% raw %}
+import { Route } from 'react-router-dom';
+import { debounce } from 'throttle-debounce';
+import * as BooksAPI from './BooksAPI';
+import './App.css';
+import ListBooks from './ListBooks';
+import SearchBooks from './SearchBooks';
+
+class BooksApp extends Component {
+  bookshelves = [
+    { key: 'currentlyReading', name: 'Currently Reading' },
+    { key: 'wantToRead', name: 'Want to Read' },
+    { key: 'read', name: 'Read' },
+  ];
+  state = {
+    myBooks: [],
+    searchBooks: [],
+  };
+  componentDidMount = () => {
+    BooksAPI.getAll().then(books => {
+      this.setState({ myBooks: books });
+    });
+  };
+  moveBook = (book, shelf) => {
+    BooksAPI.update(book, shelf);
+
+    let updatedBooks = [];
+    updatedBooks = this.state.myBooks.filter(b => b.id !== book.id);
+
+    if (shelf !== 'none') {
+      book.shelf = shelf;
+      updatedBooks = updatedBooks.concat(book);
+    }
+
+    this.setState({
+      myBooks: updatedBooks,
+    });
+  };
+  searchForBooks = debounce(300, false, query => {
+    if (query.length > 0) {
+      BooksAPI.search(query).then(books => {
+        if (books.error) {
+          this.setState({ searchBooks: [] });
+        } else {
+          this.setState({ searchBooks: books });
+        }
+      });
+    } else {
+      this.setState({ searchBooks: [] });
+    }
+  });
+  resetSearch = () => {
+    this.setState({ searchBooks: [] });
+  };
+
+  render() {
+    const { myBooks, searchBooks } = this.state;
+    return (
+      <div className="app">
+        <Route
+          exact
+          path="/"
+          render={() => (
+            <ListBooks
+              bookshelves={this.bookshelves}
+              books={myBooks}
+              onMove={this.moveBook}
+            />
+          )}
+        />
+        <Route
+          path="/search"
+          render={() => (
+            <SearchBooks
+              searchBooks={searchBooks}
+              myBooks={myBooks}
+              onSearch={this.searchForBooks}
+              onMove={this.moveBook}
+              onResetSearch={this.resetSearch}
+            />
+          )}
+        />
+      </div>
+    );
+  }
+}
+
+export default BooksApp;
+```
+
+#### Main Page
+##### ListBooks.js
+
+```jsx
+import React, { Component } from 'react';
+import Bookcase from './Bookcase';
+import OpenSearchButton from './OpenSearchButton';
+
+class ListBooks extends Component {
+  render() {
+    const { bookshelves, books, onMove } = this.props;
+    return (
+      <div className="list-books">
+        <div className="list-books-title">
+          <h1>MyReads</h1>
+        </div>
+        <Bookcase bookshelves={bookshelves} books={books} onMove={onMove} />
+        <OpenSearchButton />
+      </div>
+    );
+  }
+}
+
+export default ListBooks;
+```
+
+##### Bookcase.js
+
+```jsx
+import React from 'react';
+import Bookshelf from './Bookshelf';
+
+const Bookcase = props => {
+  const { bookshelves, books, onMove } = props;
+  return (
+    <div className="list-books-content">
+      <div>
+        {bookshelves.map(shelf => (
+          <Bookshelf
+            key={shelf.key}
+            shelf={shelf}
+            books={books}
+            onMove={onMove}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Bookcase;
+```
+
+##### Bookshelf.js
+
+```jsx
+import React from 'react';
+import Book from './Book';
+
+const Bookshelf = props => {
+  const { shelf, books, onMove } = props;
+  const booksOnThisShelf = books.filter(book => book.shelf === shelf.key);
+  return (
+    <div className="bookshelf">
+      <h2 className="bookshelf-title">{shelf.name}</h2>
+      <div className="bookshelf-books">
+        <ol className="books-grid">
+          {booksOnThisShelf.map(book => (
+            <Book key={book.id} book={book} shelf={shelf.key} onMove={onMove} />
+          ))}
+        </ol>
+      </div>
+    </div>
+  );
+};
+
+export default Bookshelf;
+```
+
+##### Book.js
+
+```jsx
+import React from 'react';
+import BookshelfChanger from './BookshelfChanger';
+
+const Book = props => {
+  const { book, shelf, onMove } = props;
+  return (
+    <li>
+      <div className="book">
+        <div className="book-top">
+          <div
+            className="book-cover"
+            style={{
+              width: 128,
+              height: 193,
+              backgroundImage: `url(${book.imageLinks &&
+                book.imageLinks.thumbnail})`,
+            }}
+          />
+          <BookshelfChanger book={book} shelf={shelf} onMove={onMove} />
+        </div>
+        <div className="book-title">{book.title}</div>
+        <div className="book-authors">
+          {book.authors && book.authors.join(', ')}
+        </div>
+      </div>
+    </li>
+  );
+};
+
+export default Book;
+```
+
+##### BookshelfChanger.js
+
+```jsx
+import React, { Component } from 'react';
+
+class BookshelfChanger extends Component {
+  state = {
+    value: this.props.shelf,
+  };
+  handleChange = event => {
+    this.setState({ value: event.target.value });
+    this.props.onMove(this.props.book, event.target.value);
+  };
+  render() {
+    return (
+      <div className="book-shelf-changer">
+        <select value={this.state.value} onChange={this.handleChange}>
+          <option value="move" disabled>
+            Move to...
+          </option>
+          <option value="currentlyReading">Currently Reading</option>
+          <option value="wantToRead">Want to Read</option>
+          <option value="read">Read</option>
+          <option value="none">None</option>
+        </select>
+      </div>
+    );
+  }
+}
+
+export default BookshelfChanger;
+```
+
+#### Search Page
+##### SearchBooks.js
+
+```jsx
+import React, { Component } from 'react';
+import SearchResults from './SearchResults';
+import SearchBar from './SearchBar';
+
+class SearchBooks extends Component {
+  render() {
+    const {
+      searchBooks,
+      myBooks,
+      onSearch,
+      onResetSearch,
+      onMove,
+    } = this.props;
+    return (
+      <div className="search-books">
+        <SearchBar onSearch={onSearch} onResetSearch={onResetSearch} />
+        <SearchResults
+          searchBooks={searchBooks}
+          myBooks={myBooks}
+          onMove={onMove}
+        />
+      </div>
+    );
+  }
+}
+
+export default SearchBooks;
+```
+
+##### CloseSearchButton.js
+
+```jsx
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+const CloseSearchButton = props => {
+  const { onResetSearch } = props;
+  return (
+    <Link to="/">
+      <button className="close-search" onClick={onResetSearch}>
+        Close
+      </button>
+    </Link>
+  );
+};
+
+export default CloseSearchButton;
+```
+
+##### SearchBooksInput.js
+
+```jsx
+import React, { Component } from 'react';
+
+class SearchBooksInput extends Component {
+  state = {
+    value: '',
+  };
+  handleChange = event => {
+    const val = event.target.value;
+    this.setState({ value: val }, () => {
+      this.props.onSearch(val);
+    });
+  };
+  render() {
+    return (
+      <div className="search-books-input-wrapper">
+        <input
+          type="text"
+          value={this.state.value}
+          placeholder="Search by title or author"
+          onChange={this.handleChange}
+          autoFocus
+        />
+      </div>
+    );
+  }
+}
+
+export default SearchBooksInput;
+```
+
+##### SearchResults.js
+
+```jsx
+import React from 'react';
+import Book from './Book';
+
+const SearchResults = props => {
+  const { searchBooks, myBooks, onMove } = props;
+
+  const updatedBooks = searchBooks.map(book => {
+    myBooks.map(b => {
+      if (b.id === book.id) {
+        book.shelf = b.shelf;
+      }
+      return b;
+    });
+    return book;
+  });
+  return (
+    <div className="search-books-results">
+      <ol className="books-grid">
+        {updatedBooks.map(book => (
+          <Book
+            key={book.id}
+            book={book}
+            shelf={book.shelf ? book.shelf : 'none'}
+            onMove={onMove}
+          />
+        ))}
+      </ol>
+    </div>
+  );
+};
+
+export default SearchResults;
+```
+
+{% endraw %}
+
+Some of these components could have been left in their parent component files e.g. OpenSearchButton, CloseSearchButton, etc. but I separated everything out nonetheless.
+
+Here's Main page.
+
+[![ui12](assets/images/p12-small.jpg)](assets/images/p12.jpg)<br>
+**Live Demo:** [reactnd-project-myreads@9-separate-components](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/9-separate-components/) on CodeSandbox
+
+Here is the Search page.
+
+[![ui13](assets/images/p13-small.jpg)](assets/images/p13.jpg)<br>
+**Live Demo:** [reactnd-project-myreads@9-separate-components](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/9-separate-components/) on CodeSandbox
