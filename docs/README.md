@@ -1642,7 +1642,6 @@ The last step was to push everything to GitHub and make sure the README instruct
 > - On the project submission page choose the option "Submit with GitHub"
 > - Select the repository for this project (you may need to connect your GitHub account first).
 
-<!-- 
 ## 9. Feedback & Response
 ### 9.1 Project Review
 Here's the response I received.
@@ -1690,6 +1689,7 @@ Here's a handy README template for future projects: [https://gist.github.com/Pur
 >
 > Examples can be found in the Code Review section.
 
+<!-- 
 ### 9.2 Code Review
 Here's breakdown of the comments related to each file.
 
