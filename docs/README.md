@@ -1632,3 +1632,241 @@ Here is the Search page.
 
 [![ui13](assets/images/p13-small.jpg)](assets/images/p13.jpg)<br>
 **Live Demo:** [reactnd-project-myreads@9-separate-components](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/9-separate-components/) on CodeSandbox
+
+### 8.2 Submit Project
+The last step was to push everything to GitHub and make sure the README instructions were up to date and clearly specified how to install and run the project.
+
+> If you chose to develop on your local machine (by either starting with the starter project or starting from scratch with Create React App), you will need to:
+>
+> - Push your project to GitHub, making sure to push the master branch.
+> - On the project submission page choose the option "Submit with GitHub"
+> - Select the repository for this project (you may need to connect your GitHub account first).
+
+<!-- 
+## 9. Feedback & Response
+### 9.1 Project Review
+Here's the response I received.
+
+> #### Meets Specifications
+> Congratulations on completing MyReads on your first attempt.
+>
+> The detailed process walkthrough is a great addition to the project; be sure to include the link when presenting the portfolio.
+>
+>If you're interested to take it up a notch, you can provide test coverage to components with Jest. Get started here: [https://jestjs.io/docs/en/tutorial-react](https://jestjs.io/docs/en/tutorial-react)
+>
+> Keep up the good work and have fun with your coming projects.
+
+> #### Application Setup
+> The README is detailed and and the process walkthrough is invaluable. Here are some suggestions for the process walkthrough:
+>
+> - break the process down into stages ( i.e. architecture planning, => UI components => logic => refactoring ). This write-up should be written with minimal mention of tools to explain your thought process which is invaluable in an interview,
+> - explain your understanding of data mutability/immutability and state management
+> - testing (try not to ignore this aspect before heading into an interview),
+>
+Here's a handy README template for future projects: [https://gist.github.com/PurpleBooth/109311bb0361f32d87a2](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2)
+>
+> All things said, good work 💯
+
+> #### Main Page
+> BEST PRACTICE:
+> Try not to break the application down into too many moving parts.
+>
+> A rationale is given and explained in the Code Review section.
+
+> #### Search Page
+> Search was well implemented and bug-free 💯
+
+> #### Code Functionality
+> ##### Component State
+> Tip ⚡
+>
+> Assigning array and/or objects to new variables creates shallow copies and might cause 'illegal' updates to state.
+>
+> Explanation in **Code Review > App.js**.
+>
+> ##### Error Handling
+> BEST PRACTICE:
+> When writing asynchronous code, it's a good idea to include error handling.
+>
+> Examples can be found in the Code Review section.
+
+### 9.2 Code Review
+Here's breakdown of the comments related to each file.
+
+#### App.js
+
+```jsx
+import { Route } from 'react-router-dom';
+import { debounce } from 'throttle-debounce';
+import * as BooksAPI from './BooksAPI';
+import './App.css';
+// import getAll from './data';
+import ListBooks from './ListBooks';
+import SearchBooks from './SearchBooks';
+
+class BooksApp extends Component {
+  bookshelves = [
+    { key: 'currentlyReading', name: 'Currently Reading' },
+    { key: 'wantToRead', name: 'Want to Read' },
+    { key: 'read', name: 'Read' },
+  ];
+```
+
+BEST PRACTICE:
+
+Try not to pollute the scope of this with variables, especially if those variables are constants. These can be moved out of the components scope or into a separate file.
+
+```jsx
+  state = {
+    myBooks: [],
+    searchBooks: [],
+  };
+  componentDidMount = () => {
+    BooksAPI.getAll().then(books => {
+      this.setState({ myBooks: books });
+    });
+```
+
+BEST PRACTICE:
+
+It's good practice to `catch` potential errors from a remote server. Many things might go wrong:
+
+- user's device offline in subway,
+- shark ate intercontinental cable,
+- server temporarily offline,
+- slow connection,
+
+An error key can be created in the `state` object for this purpose.
+
+```jsx
+  };
+  moveBook = (book, shelf) => {
+    // update db
+    BooksAPI.update(book, shelf);
+    // BooksAPI.update(book, shelf).then(books => {
+    //   console.log(books);
+    // });
+
+    let updatedBooks = [];
+    updatedBooks = this.state.myBooks.filter(b => b.id !== book.id);
+```
+
+A few factors to note about the last two lines.
+
+1. `Array.prototype.filter` creates returns a new array after running the filtering function. Read about this method here,
+2. the update pattern above is not encouraged, as reassigning arrays and objects (only with the JS language) creates shallow copies of the original. [Read about shallow copies here](https://we-are.bookmyshow.com/understanding-deep-and-shallow-copy-in-javascript-13438bad941c).
+- editing shallow copies will edit the original, which means state might be illegally/accidentally updated without calling `this.setState`.
+
+Please refer to the code example above.
+
+Read about using previous state in `this.setState` here: [https://reactjs.org/docs/react-component.html#setstate](https://reactjs.org/docs/react-component.html#setstate)
+
+#### Book.js
+
+```jsx
+import React from 'react';
+import BookshelfChanger from './BookshelfChanger';
+
+const Book = props => {
+  const { book, shelf, onMove } = props;
+```
+
+Tip ⚡
+
+The `props` object received from this component's parent can be destructured as parameters for a stateless component.
+
+```jsx
+  return (
+    <li>
+      <div className="book">
+        <div className="book-top">
+          <div
+            className="book-cover"{% raw %}
+            style={{
+              width: 128,
+              height: 193,
+              backgroundImage: `url(${book.imageLinks &&
+                book.imageLinks.thumbnail})`,
+```
+
+BEST PRACTICE:
+
+Display placeholders to improve the user's experience when the server returns incomplete data.
+
+```jsx
+            }}{% endraw %}
+          />
+          <BookshelfChanger book={book} shelf={shelf} onMove={onMove} />
+        </div>
+        <div className="book-title">{book.title}</div>
+        <div className="book-authors">
+          {book.authors && book.authors.join(', ')}
+```
+
+BEST PRACTICE:
+
+Use the 'short-circuit' pattern with care. When building user-centric UI you'd still want to return something instead of `null` or `undefined`.
+
+See alternative in code example above.
+
+#### BookshelfChanger.js
+
+```jsx
+import React, { Component } from 'react';
+
+class BookshelfChanger extends Component {
+  state = {
+    value: this.props.shelf,
+  };
+  handleChange = event => {
+    this.setState({ value: event.target.value });
+    this.props.onMove(this.props.book, event.target.value);
+  };
+```
+
+Tip ⚡
+
+Destructure `event` and assign it's value to `this.state.value` with the shorthand method.
+
+Resource: [https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer)
+
+```jsx
+  render() {
+    // console.log(this.props.shelf);
+```
+
+BEST PRACTICE:
+
+It's a good idea to remove logging statements before presenting the code in your portfolio.
+
+Additionally, breakpoints are efficient compared to `console.log`:
+
+- [https://developers.google.com/web/tools/chrome-devtools/javascript/breakpoints](https://developers.google.com/web/tools/chrome-devtools/javascript/breakpoints)
+- [https://hackernoon.com/please-stop-using-console-log-its-broken-b5d7d396cf15](https://hackernoon.com/please-stop-using-console-log-its-broken-b5d7d396cf15)
+
+#### CloseSearchButton.js
+
+```jsx
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+const CloseSearchButton = props => {
+```
+
+BEST PRACTICE:
+
+There are no written rules on the size of a component before it should be separated into its own file. However, a few considerations apply to keep code base maintenance sane. If:
+
+- if its length is a few lines and called only a few times from other components,
+- props need to be passed multiple levels to reach the component,
+- creating it causes future maintenance to be a headache due to component saturation,
+  
+**it shouldn't be in its own file/component.**
+
+EXPLANATION:
+
+In the production environment the code base will last years until it becomes 'legacy code'. Maintenance, optimizations and updates are performed by the team on a daily basis.
+
+A separate component for each UI element will only get you a meeting with HR.
+
+### 9.3 Implement Changes -->
