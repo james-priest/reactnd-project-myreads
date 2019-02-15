@@ -1689,7 +1689,6 @@ Here's a handy README template for future projects: [https://gist.github.com/Pur
 >
 > Examples can be found in the Code Review section.
 
-<!-- 
 ### 9.2 Code Review
 Here's breakdown of the comments related to each file.
 
@@ -1869,4 +1868,5 @@ In the production environment the code base will last years until it becomes 'le
 
 A separate component for each UI element will only get you a meeting with HR.
 
+<!-- 
 ### 9.3 Implement Changes -->
