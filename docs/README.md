@@ -1651,7 +1651,8 @@ Here's the response I received.
 >
 > The detailed process walkthrough is a great addition to the project; be sure to include the link when presenting the portfolio.
 >
->If you're interested to take it up a notch, you can provide test coverage to components with Jest. Get started here: [https://jestjs.io/docs/en/tutorial-react](https://jestjs.io/docs/en/tutorial-react)
+>If you're interested to take it up a notch, you can provide test coverage to components with Jest. Get started here:
+> - [Jest: Testing React Apps Tutorial](https://jestjs.io/docs/en/tutorial-react)
 >
 > Keep up the good work and have fun with your coming projects.
 
@@ -1662,7 +1663,8 @@ Here's the response I received.
 > - explain your understanding of data mutability/immutability and state management
 > - testing (try not to ignore this aspect before heading into an interview),
 >
-Here's a handy README template for future projects: [https://gist.github.com/PurpleBooth/109311bb0361f32d87a2](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2)
+Here's a handy README template for future projects:
+> - [GitHub gist: README template](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2)
 >
 > All things said, good work 💯
 
@@ -1713,7 +1715,7 @@ class BooksApp extends Component {
 
 BEST PRACTICE:
 
-Try not to pollute the scope of this with variables, especially if those variables are constants. These can be moved out of the components scope or into a separate file.
+Try not to pollute the scope of `this` with variables, especially if those variables are constants. These can be moved out of the components scope or into a separate file.
 
 ```jsx
   state = {
@@ -1724,6 +1726,7 @@ Try not to pollute the scope of this with variables, especially if those variabl
     BooksAPI.getAll().then(books => {
       this.setState({ myBooks: books });
     });
+  };
 ```
 
 BEST PRACTICE:
@@ -1738,27 +1741,35 @@ It's good practice to `catch` potential errors from a remote server. Many things
 An error key can be created in the `state` object for this purpose.
 
 ```jsx
-  };
   moveBook = (book, shelf) => {
-    // update db
     BooksAPI.update(book, shelf);
-    // BooksAPI.update(book, shelf).then(books => {
-    //   console.log(books);
-    // });
 
     let updatedBooks = [];
     updatedBooks = this.state.myBooks.filter(b => b.id !== book.id);
+    if (shelf !== 'none') {
+      book.shelf = shelf;
+      updatedBooks = updatedBooks.concat(book);
+    }
+
+    this.setState({
+      myBooks: updatedBooks,
+    });
+  };
 ```
 
-A few factors to note about the last two lines.
+A few factors to note about `updateBooks` assignment.
 
-1. `Array.prototype.filter` creates returns a new array after running the filtering function. Read about this method here,
-2. the update pattern above is not encouraged, as reassigning arrays and objects (only with the JS language) creates shallow copies of the original. [Read about shallow copies here](https://we-are.bookmyshow.com/understanding-deep-and-shallow-copy-in-javascript-13438bad941c).
-- editing shallow copies will edit the original, which means state might be illegally/accidentally updated without calling `this.setState`.
+1. `Array.prototype.filter` creates/returns a new array after running the filtering function but it only provides a shallow copy - meaning nested objects are still passed by ref. Read about this method here:
+   - [Array.prototype.filter()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter) on MDN
+2. The update pattern above is not encouraged, as reassigning arrays and objects creates shallow copies of the original (specific to JavaScript language only).
+- editing shallow copies will edit the **original**, which means state might be illegally/accidentally updated without calling `this.setState`.
+  
+Read more about shallow vs deep copies:
+- [Understanding Deep and Shallow Copy in Javascript](https://we-are.bookmyshow.com/understanding-deep-and-shallow-copy-in-javascript-13438bad941c).
+- [How to differentiate between deep and shallow copies in JavaScript](https://medium.freecodecamp.org/copying-stuff-in-javascript-how-to-differentiate-between-deep-and-shallow-copies-b6d8c1ef09cd)
 
-Please refer to the code example above.
-
-Read about using previous state in `this.setState` here: [https://reactjs.org/docs/react-component.html#setstate](https://reactjs.org/docs/react-component.html#setstate)
+Read about using previous state in `this.setState` here:
+- [https://reactjs.org/docs/react-component.html#setstate](https://reactjs.org/docs/react-component.html#setstate)
 
 #### Book.js
 
@@ -1827,7 +1838,8 @@ Tip ⚡
 
 Destructure `event` and assign it's value to `this.state.value` with the shorthand method.
 
-Resource: [https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer)
+- [Object Initializer - JavaScript \| MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer)
+- [Method definitions - JavaScript \| MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Method_definitions)
 
 ```jsx
   render() {
@@ -1840,8 +1852,8 @@ It's a good idea to remove logging statements before presenting the code in your
 
 Additionally, breakpoints are efficient compared to `console.log`:
 
-- [https://developers.google.com/web/tools/chrome-devtools/javascript/breakpoints](https://developers.google.com/web/tools/chrome-devtools/javascript/breakpoints)
-- [https://hackernoon.com/please-stop-using-console-log-its-broken-b5d7d396cf15](https://hackernoon.com/please-stop-using-console-log-its-broken-b5d7d396cf15)
+- [How To Pause Your Code With Breakpoints In Chrome DevTools](https://developers.google.com/web/tools/chrome-devtools/javascript/breakpoints)
+- [Please stop using console.log(), it’s broken...](https://hackernoon.com/please-stop-using-console-log-its-broken-b5d7d396cf15) - Hacker Noon
 
 #### CloseSearchButton.js
 
@@ -1854,19 +1866,300 @@ const CloseSearchButton = props => {
 
 BEST PRACTICE:
 
-There are no written rules on the size of a component before it should be separated into its own file. However, a few considerations apply to keep code base maintenance sane. If:
+There are no written rules on the size of a component before it should be separated into its own file. However, a few considerations apply to keep code base maintenance sane.
 
-- if its length is a few lines and called only a few times from other components,
+**Don't put code in it's own file/component if:**
+
+- its length is a few lines and called only a few times from other components,
 - props need to be passed multiple levels to reach the component,
-- creating it causes future maintenance to be a headache due to component saturation,
+- creating it causes future maintenance to be a headache due to component saturation
   
-**it shouldn't be in its own file/component.**
-
 EXPLANATION:
 
 In the production environment the code base will last years until it becomes 'legacy code'. Maintenance, optimizations and updates are performed by the team on a daily basis.
 
 A separate component for each UI element will only get you a meeting with HR.
 
+### 9.3 Implement Changes
+Here's a summary of the changes and requirements based on the code review.
+
+App.js
+
+1. Move constants out of component and place in global scope.
+2. Catch all possible errors coming back from Ajax requests.
+   - Create `error` key in state to trigger message in UI.
+3. Fix Array reassign of state due to shallow copy that occurs with reassignment of array in JavaScript.
+   - Always handle alternative `else` statements.
+
+Book.js
+
+1. Destructure props as parameters for a stateless component.
+2. Use placeholder image on incomplete data.
+3. Use short-circuit pattern with care in UI. You want to return something rather than `null` or `undefined`.
+
+BookshelfChanger.js
+
+1. Destructure `event` with shorthand method.
+2. Remove log statements.
+
+#### App.js
+1. Move constants out of component and place in global scope.
+2. Catch all possible errors coming back from Ajax requests.
+   - Create `error` key in state to trigger message in UI.
+3. Fix Array reassign of state due to shallow copy that occurs with reassignment of array in JavaScript.
+   - Always handle alternative `else` statements.
+
+##### 1. Before
+
+```jsx
+class BooksApp extends Component {
+  bookshelves = [
+    { key: 'currentlyReading', name: 'Currently Reading' },
+    { key: 'wantToRead', name: 'Want to Read' },
+    { key: 'read', name: 'Read' },
+  ];
+```
+
+##### 1. After
+
+```jsx
+bookshelves = [
+  { key: 'currentlyReading', name: 'Currently Reading' },
+  { key: 'wantToRead', name: 'Want to Read' },
+  { key: 'read', name: 'Read' },
+];
+class BooksApp extends Component {
+```
+
+##### 2. Before
+
+```jsx
+  state = {
+    myBooks: [],
+    searchBooks: [],
+  };
+  componentDidMount = () => {
+    BooksAPI.getAll().then(books => {
+      this.setState({ myBooks: books });
+    });
+  };
+  render() {
+    const { myBooks, searchBooks, error } = this.state;
+    return (
+      // ui code...
+    )
+  }
+```
+
+##### 2. After
+
+```jsx
+  state = {
+    myBooks: [],
+    searchBooks: [],
+    error: false
+  };
+  componentDidMount = () => {
+    BooksAPI.getAll()
+      .then(books => {
+        this.setState({ myBooks: books });
+      })
+      .catch(err => {
+        console.log(err);
+        this.setState({ error: true });
+      });
+  };
+  render() {
+    const { myBooks, searchBooks, error } = this.state;
+    if (error) {
+      return <div>Network error. Please try again later.</div>;
+    }
+    return (
+      // ui code...
+    )
+  }
+}
+```
+
+##### 3. Before
+
+```jsx
+  moveBook = (book, shelf) => {
+    BooksAPI.update(book, shelf);
+
+    let updatedBooks = [];
+    updatedBooks = this.state.myBooks.filter(b => b.id !== book.id);
+    if (shelf !== 'none') {
+      book.shelf = shelf;
+      updatedBooks = updatedBooks.concat(book);
+    }
+
+    this.setState({
+      myBooks: updatedBooks,
+    });
+  };
+```
+
+##### 3. After
+
+```jsx
+  moveBook = (book, shelf) => {
+    BooksAPI.update(book, shelf).catch(err => {
+      console.log(err);
+      this.setState({ error: true });
+    });
+    if (shelf === 'none') {
+      this.setState(prevState => ({
+        myBooks: prevState.myBooks.filter(b => b.id !== book.id)
+      }));
+    } else {
+      book.shelf = shelf;
+      this.setState(prevState => ({
+        myBooks: prevState.myBooks.filter(b => b.id !== book.id).concat(book)
+      }));
+    }
+  };
+```
+
+#### Book.js
+
+1. Destructure props as parameters for a stateless component.
+2. Use placeholder image on incomplete data.
+3. Use short-circuit pattern with care in UI. You want to return something rather than `null` or `undefined`.
+
+##### 1. Before
+
+```jsx
+import React from 'react';
+import BookshelfChanger from './BookshelfChanger';
+
+const Book = props => {
+  const { book, shelf, onMove } = props;
+  return (
+    <li>{/* UI code */}</li>
+  );
+};
+```
+
+##### 1. After
+
+```jsx
+import React from 'react';
+import BookshelfChanger from './BookshelfChanger';
+
+const Book = ({ book, shelf, onMove }) => (
+  <li>{/* UI code */}</li>
+);
+```
+
+##### 2. Before
+
+```jsx
+  return (
+    <li>
+      <div className="book">
+        <div className="book-top">
+          <div
+            className="book-cover"{% raw %}
+            style={{
+              width: 128,
+              height: 193,
+              backgroundImage: `url(${book.imageLinks &&
+                book.imageLinks.thumbnail})`,
+```
+
+##### 2. After
+
+```jsx
+  <li>
+    <div className="book">
+      <div className="book-top">
+        <div
+          className="book-cover"
+          style={{{% endraw %}
+            width: 128,
+            height: 193,
+            backgroundImage: `url(${
+              book.imageLinks
+                ? book.imageLinks.thumbnail
+                : 'icons/book-placeholder.svg'
+            })`
+```
+
+##### 3. Before
+
+```jsx
+     <div className="book-authors">
+       {book.authors && book.authors.join(', ')}
+```
+
+##### 3. After
+
+```jsx
+      <div className="book-authors">
+        {book.authors ? book.authors.join(', ') : 'Unknown Author'}
+```
+
+#### BookshelfChanger.js
+
+1. Destructure `event` with shorthand method.
+2. Remove log statements.
+
+##### 1. Before
+
+```jsx
+import React, { Component } from 'react';
+
+class BookshelfChanger extends Component {
+  state = {
+    value: this.props.shelf,
+  };
+  handleChange = event => {
+    this.setState({ value: event.target.value });
+    this.props.onMove(this.props.book, event.target.value);
+  };
+```
+
+##### 1. After
+
+```jsx
+import React, { Component } from 'react';
+
+class BookshelfChanger extends Component {
+  state = {
+    value: this.props.shelf,
+  };
+  handleChange = event => {
+    const { value } = event.target;
+    this.setState({ value });
+    this.props.onMove(this.props.book, value);
+  };
+```
+
 <!-- 
-### 9.3 Implement Changes -->
+### 9.4 Simplify Structure
+The last piece is to consolidate components based on the following recommendations.
+
+> **Don't put code in it's own file/component if:**
+>
+> - its length is a few lines and called only a few times from other components,
+> - props need to be passed multiple levels to reach the component,
+> - creating it causes future maintenance to be a headache due to component saturation
+
+Given this instruction I decided to follow this new, simplified hierarchy.
+
+- BooksApp
+  - Route {ListBooks}
+    - Bookshelf
+      - Book
+        - BookshelfChanger
+  - Route {SearchBooks}
+    - SearchBooksInput
+    - SearchResults
+      - Book
+        - BookshelfChanger
+
+Here's the screenshot of the UI which hasn't changed but the underlying structure has.
+
+[![ui14](assets/images/p14-small.jpg)](assets/images/p14.jpg)<br>
+**Live Demo:** [reactnd-project-myreads@10-code-review-enhancements](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/10-code-review-enhancements/) on CodeSandbox -->
