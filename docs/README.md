@@ -2136,7 +2136,6 @@ class BookshelfChanger extends Component {
   };
 ```
 
-<!-- 
 ### 9.4 Simplify Structure
 The last piece is to consolidate components based on the following recommendations.
 
@@ -2162,4 +2161,4 @@ Given this instruction I decided to follow this new, simplified hierarchy.
 Here's the screenshot of the UI which hasn't changed but the underlying structure has.
 
 [![ui14](assets/images/p14-small.jpg)](assets/images/p14.jpg)<br>
-**Live Demo:** [reactnd-project-myreads@10-code-review-enhancements](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/10-code-review-enhancements/) on CodeSandbox -->
+**Live Demo:** [reactnd-project-myreads@10-code-review-enhancements](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/10-code-review-enhancements/) on CodeSandbox
