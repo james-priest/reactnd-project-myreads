@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import Bookcase from './Bookcase';
-import OpenSearchButton from './OpenSearchButton';
+import { Link } from 'react-router-dom';
+import Bookshelf from './Bookshelf';
 
 class ListBooks extends Component {
   render() {
@@ -10,8 +10,23 @@ class ListBooks extends Component {
         <div className="list-books-title">
           <h1>MyReads</h1>
         </div>
-        <Bookcase bookshelves={bookshelves} books={books} onMove={onMove} />
-        <OpenSearchButton />
+        <div className="list-books-content">
+          <div>
+            {bookshelves.map(shelf => (
+              <Bookshelf
+                key={shelf.key}
+                shelf={shelf}
+                books={books}
+                onMove={onMove}
+              />
+            ))}
+          </div>
+        </div>
+        <div className="open-search">
+          <Link to="search">
+            <button>Add a Book</button>
+          </Link>
+        </div>
       </div>
     );
   }
