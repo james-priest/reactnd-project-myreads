@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import SearchResults from './SearchResults';
-import SearchBar from './SearchBar';
+import { Link } from 'react-router-dom';
+import SearchBooksInput from './SearchBooksInput';
 
 class SearchBooks extends Component {
   render() {
@@ -9,12 +10,18 @@ class SearchBooks extends Component {
       myBooks,
       onSearch,
       onResetSearch,
-      onMove,
+      onMove
     } = this.props;
-    // console.log(books);
     return (
       <div className="search-books">
-        <SearchBar onSearch={onSearch} onResetSearch={onResetSearch} />
+        <div className="search-books-bar">
+          <Link to="/">
+            <button className="close-search" onClick={onResetSearch}>
+              Close
+            </button>
+          </Link>
+          <SearchBooksInput onSearch={onSearch} />
+        </div>
         <SearchResults
           searchBooks={searchBooks}
           myBooks={myBooks}

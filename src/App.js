@@ -3,50 +3,49 @@ import { Route } from 'react-router-dom';
 import { debounce } from 'throttle-debounce';
 import * as BooksAPI from './BooksAPI';
 import './App.css';
-// import getAll from './data';
 import ListBooks from './ListBooks';
 import SearchBooks from './SearchBooks';
 
+const bookshelves = [
+  { key: 'currentlyReading', name: 'Currently Reading' },
+  { key: 'wantToRead', name: 'Want to Read' },
+  { key: 'read', name: 'Read' }
+];
 class BooksApp extends Component {
-  bookshelves = [
-    { key: 'currentlyReading', name: 'Currently Reading' },
-    { key: 'wantToRead', name: 'Want to Read' },
-    { key: 'read', name: 'Read' },
-  ];
   state = {
     myBooks: [],
     searchBooks: [],
+    error: false
   };
   componentDidMount = () => {
-    BooksAPI.getAll().then(books => {
-      this.setState({ myBooks: books });
-    });
+    BooksAPI.getAll()
+      .then(books => {
+        this.setState({ myBooks: books });
+      })
+      .catch(err => {
+        console.log(err);
+        this.setState({ error: true });
+      });
   };
   moveBook = (book, shelf) => {
-    // update db
-    BooksAPI.update(book, shelf);
-    // BooksAPI.update(book, shelf).then(books => {
-    //   console.log(books);
-    // });
-
-    let updatedBooks = [];
-    updatedBooks = this.state.myBooks.filter(b => b.id !== book.id);
-
-    if (shelf !== 'none') {
-      book.shelf = shelf;
-      updatedBooks = updatedBooks.concat(book);
-    }
-
-    // console.log('updated books len', updatedBooks.length);
-    this.setState({
-      myBooks: updatedBooks,
+    BooksAPI.update(book, shelf).catch(err => {
+      console.log(err);
+      this.setState({ error: true });
     });
+    if (shelf === 'none') {
+      this.setState(prevState => ({
+        myBooks: prevState.myBooks.filter(b => b.id !== book.id)
+      }));
+    } else {
+      book.shelf = shelf;
+      this.setState(prevState => ({
+        myBooks: prevState.myBooks.filter(b => b.id !== book.id).concat(book)
+      }));
+    }
   };
   searchForBooks = debounce(300, false, query => {
-    // console.log(query);
     if (query.length > 0) {
       BooksAPI.search(query).then(books => {
-        // console.log('result', books);
         if (books.error) {
           this.setState({ searchBooks: [] });
         } else {
@@ -62,7 +61,10 @@ class BooksApp extends Component {
   };
 
   render() {
-    const { myBooks, searchBooks } = this.state;
+    const { myBooks, searchBooks, error } = this.state;
+    if (error) {
+      return <div>Network error. Please try again later.</div>;
+    }
     return (
       <div className="app">
         <Route
@@ -70,7 +72,7 @@ class BooksApp extends Component {
           path="/"
           render={() => (
             <ListBooks
-              bookshelves={this.bookshelves}
+              bookshelves={bookshelves}
               books={myBooks}
               onMove={this.moveBook}
             />
