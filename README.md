@@ -1,3 +1,5 @@
+[![Edit reactnd-project-myreads](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/github/james-priest/reactnd-project-myreads/tree/master/)
+
 # MyReads
 
 MyReads is a simple cataloging app that allows you to place books in one of three shelves or categories.
