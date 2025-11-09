@@ -6,7 +6,7 @@
     "name": "James Priest"
   },
   "engines": {
-    "node": "18.x"
+    "node": "16.x"
   },
   "dependencies": {
     "react": "^16.7.0",
