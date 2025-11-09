@@ -2,6 +2,12 @@
   "name": "reactnd-project-myreads",
   "version": "0.1.0",
   "private": true,
+  "author": {
+    "name": "James Priest"
+  },
+  "engines": {
+    "node": "16.x"
+  },
   "dependencies": {
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
